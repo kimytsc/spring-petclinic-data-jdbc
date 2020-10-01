@@ -1,0 +1,13 @@
+.dockerignore
+.git
+.github
+.gradle
+.vscode
+.build
+.editorconfig
+.travis.yml
+build/
+gradle/
+Dockerfile
+gradlew
+gradlew.bat
