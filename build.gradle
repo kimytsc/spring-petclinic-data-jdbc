@@ -121,7 +121,7 @@ docker {
     name "kimytsc/${project.name}:${project.version}"
     files bootJar.archiveFile.get()
     dockerfile project.file("./docker/Dockerfile")
-    buildArgs(["JAR_FILE": "${jar.archiveFileName.get()}"])
+    buildArgs(["TZ": "Asia/Seoul", "JAR_FILE": "${jar.archiveFileName.get()}"])
 }
 
 docker.dependsOn build
