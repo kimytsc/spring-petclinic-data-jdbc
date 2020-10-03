@@ -11,7 +11,7 @@ nameOverride: "application"
 
 fullnameOverride: "petclinic"
 
-podTerminationGracePeriodSeconds: 5
+podTerminationGracePeriodSeconds: 30
 
 securityContext:
   runAsUser: 1000
