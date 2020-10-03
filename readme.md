@@ -87,15 +87,15 @@
     - host의 `/logs`([deployment.yaml#L55](https://github.com/kimytsc/spring-petclinic-data-jdbc/blob/kakaopay/helm/application/java/templates/deployment.yaml#L55))를 container의 log 경로([deployment.yaml#L51](https://github.com/kimytsc/spring-petclinic-data-jdbc/blob/kakaopay/helm/application/java/templates/deployment.yaml#L51))에 bind
 
   - 정상 동작 여부를 반환하는 api를 구현하며, 10초에 한번 체크하도록 한다. 3번 연속 체크에 실패하면 어플리케이션은 restart 된다.
-    - `spring-boot-actuator`의 `component`를 설정, `/health/petclinic` API([PetClinic.java#L1](https://github.com/kimytsc/spring-petclinic-data-jdbc/blob/kakaopay/src/main/java/org/springframework/samples/petclinic/health/PetClinic.java)) 추가
+    - `spring-boot-actuator`의 `component`([PetClinic.java#L1](https://github.com/kimytsc/spring-petclinic-data-jdbc/blob/kakaopay/src/main/java/org/springframework/samples/petclinic/health/PetClinic.java)) 설정, `/health/petClinic` API 추가
     - 10초에 한번씩 체크하도록 `.spec.template.spec.containers.livenessProbe.periodSeconds`([deployment.yaml#L45](https://github.com/kimytsc/spring-petclinic-data-jdbc/blob/kakaopay/helm/application/java/templates/deployment.yaml#L45)) 설정
-    - 3번 연속 체크 실패 확인을 위해 `.spec.template.spec.containers.livenessProbe.failureThreshold`([deployment.yaml#L44](https://github.com/kimytsc/spring-petclinic-data-jdbc/blob/kakaopay/helm/application/java/templates/deployment.yaml#L44)) 설정
+    - 실패시 연속 3번까지만 체크하도록 `.spec.template.spec.containers.livenessProbe.failureThreshold`([deployment.yaml#L44](https://github.com/kimytsc/spring-petclinic-data-jdbc/blob/kakaopay/helm/application/java/templates/deployment.yaml#L44)) 설정
     - 테스트를 위한 health UP([HealthController.java#L19](https://github.com/kimytsc/spring-petclinic-data-jdbc/blob/kakaopay/src/main/java/org/springframework/samples/petclinic/health/HealthController.java#L19)), DOWN([HealthController.java#L24](https://github.com/kimytsc/spring-petclinic-data-jdbc/blob/kakaopay/src/main/java/org/springframework/samples/petclinic/health/HealthController.java#L24)) 구현
 
   - 종료 시 30초 이내에 프로세스가 종료되지 않으면 SIGKILL로 강제 종료 시킨다.
-    - `.spec.template.spec.terminationGracePeriodSeconds: 30`([values.yaml#L14](https://github.com/kimytsc/spring-petclinic-data-jdbc/blob/kakaopay/helm/application/java/values.yaml#L14),
+    - `.spec.template.spec.terminationGracePeriodSeconds`([values.yaml#L14](https://github.com/kimytsc/spring-petclinic-data-jdbc/blob/kakaopay/helm/application/java/values.yaml#L14) ->
       [deployment.yaml#L54](https://github.com/kimytsc/spring-petclinic-data-jdbc/blob/kakaopay/helm/application/java/templates/deployment.yaml#L54)) 설정
-    - 테스트를 위해 `.spec.template.spec.containers[].lifecycle.preStop.exec.command`([deployment.yaml#L47](https://github.com/kimytsc/spring-petclinic-data-jdbc/blob/kakaopay/helm/application/java/templates/deployment.yaml#L47)) 설정
+    - 테스트를 위해 `.spec.template.spec.containers[].lifecycle.preStop.exec.command`([deployment.yaml#L50](https://github.com/kimytsc/spring-petclinic-data-jdbc/blob/kakaopay/helm/application/java/templates/deployment.yaml#L50)) 설정
 
   - 배포 시와 scale in/out 시 유실되는 트래픽이 없어야 한다.
     - 순차적으로 배포되도록 `.spec.strategy.type: rollingUpdate`([deployment.yaml#L13](https://github.com/kimytsc/spring-petclinic-data-jdbc/blob/kakaopay/helm/application/java/templates/deployment.yaml#L13)) 설정
@@ -108,7 +108,7 @@
 
   - DB도 kubernetes에서 실행하며 재 실행 시에도 변경된 데이터는 유실되지 않도록 설정한다.
     - [mysql](https://github.com/kimytsc/spring-petclinic-data-jdbc/tree/kakaopay/helm/database/mysql) helm 추가
-    - `PersistentVolumeClaim`([persistentVolumeClaim.yaml#L1](https://github.com/kimytsc/spring-petclinic-data-jdbc/blob/kakaopay/helm/database/mysql/templates/persistentVolumeClaim.yaml),
+    - `PersistentVolumeClaim`([persistentVolumeClaim.yaml#L1](https://github.com/kimytsc/spring-petclinic-data-jdbc/blob/kakaopay/helm/database/mysql/templates/persistentVolumeClaim.yaml) ->
       [deployment.yaml#L37](https://github.com/kimytsc/spring-petclinic-data-jdbc/blob/kakaopay/helm/database/mysql/templates/deployment.yaml#L37)) 설정
     - `PersistentVolumeClaim`를 `/var/lib/mysql`([deployment.yaml#L32](https://github.com/kimytsc/spring-petclinic-data-jdbc/blob/kakaopay/helm/database/mysql/templates/deployment.yaml#L32))에 마운트
 
