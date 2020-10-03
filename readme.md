@@ -43,8 +43,8 @@
     $ export DOCKER_ID=dockerId
     $ export DOCKER_PASSWORD=dockerPassword
     $ export TEST_DOMAIN=kakaopay.petclinic.com
-    $ export TEST_DOMAIN_IP=localhost
-    $ echo "${TEST_DOMAIN_IP} ${TEST_DOMAIN}" >> /etc/hosts
+    $ export TEST_DOMAIN_IP=localhost # hosts 설정 변경이 필요한 경우에 사용
+    $ echo "${TEST_DOMAIN_IP} ${TEST_DOMAIN}" >> /etc/hosts # hosts 설정 변경이 필요한 경우에 사용
     ~~~
   - 소스 받기
     ~~~bash
@@ -88,14 +88,14 @@
 
   - 정상 동작 여부를 반환하는 api를 구현하며, 10초에 한번 체크하도록 한다. 3번 연속 체크에 실패하면 어플리케이션은 restart 된다.
     - `spring-boot-actuator`의 `component`를 설정, `/health/petclinic` API([PetClinic.java#L1](https://github.com/kimytsc/spring-petclinic-data-jdbc/blob/kakaopay/src/main/java/org/springframework/samples/petclinic/health/PetClinic.java)) 추가
-    - 10초에 한번씩 체크하도록 `.spec.template.spec.containers.livenessProbe.periodSeconds: 10`([deployment.yaml#L45](https://github.com/kimytsc/spring-petclinic-data-jdbc/blob/kakaopay/helm/application/java/templates/deployment.yaml#L45)) 설정
-    - 3번 연속 체크 실패 확인을 위해 `.spec.template.spec.containers.livenessProbe.failureThreshold: 3`([deployment.yaml#L44](https://github.com/kimytsc/spring-petclinic-data-jdbc/blob/kakaopay/helm/application/java/templates/deployment.yaml#L44)) 설정
+    - 10초에 한번씩 체크하도록 `.spec.template.spec.containers.livenessProbe.periodSeconds`([deployment.yaml#L45](https://github.com/kimytsc/spring-petclinic-data-jdbc/blob/kakaopay/helm/application/java/templates/deployment.yaml#L45)) 설정
+    - 3번 연속 체크 실패 확인을 위해 `.spec.template.spec.containers.livenessProbe.failureThreshold`([deployment.yaml#L44](https://github.com/kimytsc/spring-petclinic-data-jdbc/blob/kakaopay/helm/application/java/templates/deployment.yaml#L44)) 설정
     - 테스트를 위한 health UP([HealthController.java#L19](https://github.com/kimytsc/spring-petclinic-data-jdbc/blob/kakaopay/src/main/java/org/springframework/samples/petclinic/health/HealthController.java#L19)), DOWN([HealthController.java#L24](https://github.com/kimytsc/spring-petclinic-data-jdbc/blob/kakaopay/src/main/java/org/springframework/samples/petclinic/health/HealthController.java#L24)) 구현
 
   - 종료 시 30초 이내에 프로세스가 종료되지 않으면 SIGKILL로 강제 종료 시킨다.
     - `.spec.template.spec.terminationGracePeriodSeconds: 30`([values.yaml#L14](https://github.com/kimytsc/spring-petclinic-data-jdbc/blob/kakaopay/helm/application/java/values.yaml#L14),
       [deployment.yaml#L54](https://github.com/kimytsc/spring-petclinic-data-jdbc/blob/kakaopay/helm/application/java/templates/deployment.yaml#L54)) 설정
-    - 테스트를 위해 `.spec.template.spec.containers[].lifecycle.preStop.exec: sleep 120`([deployment.yaml#L47](https://github.com/kimytsc/spring-petclinic-data-jdbc/blob/kakaopay/helm/application/java/templates/deployment.yaml#L47)) 설정
+    - 테스트를 위해 `.spec.template.spec.containers[].lifecycle.preStop.exec.command`([deployment.yaml#L47](https://github.com/kimytsc/spring-petclinic-data-jdbc/blob/kakaopay/helm/application/java/templates/deployment.yaml#L47)) 설정
 
   - 배포 시와 scale in/out 시 유실되는 트래픽이 없어야 한다.
     - 순차적으로 배포되도록 `.spec.strategy.type: rollingUpdate`([deployment.yaml#L13](https://github.com/kimytsc/spring-petclinic-data-jdbc/blob/kakaopay/helm/application/java/templates/deployment.yaml#L13)) 설정
@@ -104,7 +104,7 @@
   - 어플리케이션 프로세스는 root 계정이 아닌 uid:1000으로 실행한다.
     - wavefront token 저장을 위해 docker build시 uid:1000 계정 정보 생성([Dockerfile#L8](https://github.com/kimytsc/spring-petclinic-data-jdbc/blob/kakaopay/docker/Dockerfile#L8)) 설정 추가
     - 빌드된 어플리케이션을 uid:1000으로 이미지에 복사([Dockerfile#L19](https://github.com/kimytsc/spring-petclinic-data-jdbc/blob/kakaopay/docker/Dockerfile#L19))
-    - uid:1000으로 실행하도록 `spec.template.spec.containers[].securityContext.runAsUser: 1000`([values.yaml#L16](https://github.com/kimytsc/spring-petclinic-data-jdbc/blob/kakaopay/helm/application/java/values.yaml#L16) -> [deployment.yaml#L26](https://github.com/kimytsc/spring-petclinic-data-jdbc/blob/kakaopay/helm/application/java/templates/deployment.yaml#L26)) 설정
+    - uid:1000으로 실행하도록 `spec.template.spec.containers[].securityContext.runAsUser`([values.yaml#L16](https://github.com/kimytsc/spring-petclinic-data-jdbc/blob/kakaopay/helm/application/java/values.yaml#L16) -> [deployment.yaml#L26](https://github.com/kimytsc/spring-petclinic-data-jdbc/blob/kakaopay/helm/application/java/templates/deployment.yaml#L26)) 설정
 
   - DB도 kubernetes에서 실행하며 재 실행 시에도 변경된 데이터는 유실되지 않도록 설정한다.
     - [mysql](https://github.com/kimytsc/spring-petclinic-data-jdbc/tree/kakaopay/helm/database/mysql) helm 추가
@@ -118,13 +118,13 @@
 
   - nginx-ingress-controller를 통해 어플리케이션에 접속이 가능하다.
     - 도메인([values.yaml#L28](https://github.com/kimytsc/spring-petclinic-data-jdbc/blob/kakaopay/helm/application/java/values.yaml#L28) -> [ingress.yaml#L21](https://github.com/kimytsc/spring-petclinic-data-jdbc/blob/kakaopay/helm/application/java/templates/ingress.yaml#L21)) 설정
-    - `nginx-ingress-controller`를 사용하기 위해 `.metadata.annotations[kubernetes.io/ingress.class]: nginx`([values.yaml#L25](https://github.com/kimytsc/spring-petclinic-data-jdbc/blob/kakaopay/helm/application/java/values.yaml#L25) -> [ingress.yaml#L16](https://github.com/kimytsc/spring-petclinic-data-jdbc/blob/kakaopay/helm/application/java/templates/ingress.yaml#L16)) 설정
+    - `nginx-ingress-controller`를 사용하기 위해 `.metadata.annotations[kubernetes.io/ingress.class]`([values.yaml#L25](https://github.com/kimytsc/spring-petclinic-data-jdbc/blob/kakaopay/helm/application/java/values.yaml#L25) -> [ingress.yaml#L16](https://github.com/kimytsc/spring-petclinic-data-jdbc/blob/kakaopay/helm/application/java/templates/ingress.yaml#L16)) 설정
 
   - namespace는 default를 사용한다.
     - helm 배포시 `--namespace` 설정 기본값이 `default`
     - 직접 지정을 위해 `namespace`([values.yaml#L8](https://github.com/kimytsc/spring-petclinic-data-jdbc/blob/kakaopay/helm/application/java/values.yaml#L8) ->
       [deployment.yaml#L5](https://github.com/kimytsc/spring-petclinic-data-jdbc/blob/kakaopay/helm/application/java/templates/deployment.yaml#L5),
-      [ingress.yaml#L12](https://github.com/kimytsc/spring-petclinic-data-jdbc/blob/kakaopay/helm/application/java/templates/ingress.yaml#L12)),
+      [ingress.yaml#L12](https://github.com/kimytsc/spring-petclinic-data-jdbc/blob/kakaopay/helm/application/java/templates/ingress.yaml#L12),
       [service.yaml#L5](https://github.com/kimytsc/spring-petclinic-data-jdbc/blob/kakaopay/helm/application/java/templates/service.yaml#L5)) 추가
 
   - README.md 파일에 실행 방법을 기술한다.
