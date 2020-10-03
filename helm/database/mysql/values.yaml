@@ -1,0 +1,24 @@
+replicaCount: 1
+
+image:
+  repository: mysql
+  pullPolicy: IfNotPresent
+  tag: "5.7"
+
+namespace: "default"
+
+nameOverride: "database"
+
+fullnameOverride: "mysql"
+
+environments:
+  - name: MYSQL_ROOT_PASSWORD
+    value: petclinic
+  - name: MYSQL_DATABASE
+    value: petclinic
+
+podTerminationGracePeriodSeconds: 30
+
+service:
+  type: ClusterIP
+  port: 3306

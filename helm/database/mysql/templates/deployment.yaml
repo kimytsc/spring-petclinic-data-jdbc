@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "app.fullname" . }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "app.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "app.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "app.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          lifecycle:
+            preStop:
+              exec:
+                command: ["sleep", "120"]
+          env:
+            {{- toYaml .Values.environments | nindent 12 }}
+          volumeMounts:
+          - name: mysql-persistent-storage
+            mountPath: /var/lib/mysql
+            subPath: mysql
+      terminationGracePeriodSeconds: {{ .Values.podTerminationGracePeriodSeconds }}
+      volumes:
+      - name: mysql-persistent-storage
+        persistentVolumeClaim:
+          claimName: {{ include "app.fullname" . }}-claim

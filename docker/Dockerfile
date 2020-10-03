@@ -13,9 +13,9 @@ RUN addgroup --gid 1000 uid \
     # && mkdir /tmp/home \
     # && ln -snf /tmp/home /home/uid
 
-ARG JAR_FILE
-COPY --chown=uid:uid ${JAR_FILE} app.jar
+# USER uid
 
-USER uid
+ARG JAR_FILE
+COPY --chown=1000:1000 ${JAR_FILE} app.jar
 
 ENTRYPOINT [ "java", "-jar", "/app.jar" ]
