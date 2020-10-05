@@ -1,3 +1,14 @@
+FROM openjdk:8-jdk-alpine as builder
+
+WORKDIR /app
+
+ARG JAR_FILE
+COPY ${JAR_FILE} app.jar
+
+RUN jar -xf app.jar
+
+##################################################
+
 FROM openjdk:8-jdk-alpine
 
 ARG TZ=UTC
@@ -15,7 +26,8 @@ RUN addgroup --gid 1000 uid \
 
 # USER uid
 
-ARG JAR_FILE
-COPY --chown=1000:1000 ${JAR_FILE} app.jar
+COPY --chown=1000:1000 --from=builder /app/BOOT-INF/lib /app/lib
+COPY --chown=1000:1000 --from=builder /app/META-INF /app/META-INF
+COPY --chown=1000:1000 --from=builder /app/BOOT-INF/classes /app
 
-ENTRYPOINT [ "java", "-jar", "/app.jar" ]
+ENTRYPOINT ["java", "-cp", "/app:/app/lib/*", "org.springframework.samples.petclinic.PetClinicApplication", "-Dspring.datasource.url=${SPRING_DATASOURCE_URL}"]

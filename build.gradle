@@ -83,10 +83,11 @@ docker {
     buildArgs(["TZ": "Asia/Seoul", "JAR_FILE": "${jar.archiveFileName.get()}"])
 }
 
-dockerPush.doFirst {
+task dockerLogin(type: Exec) {
     if (project.hasProperty('id') && project.hasProperty('pw')) {
         commandLine 'docker', 'login', "-u", "${project.id}", "-p", "${project.pw}"
     }
 }
 
 docker.dependsOn build
+dockerPush.dependsOn dockerLogin

@@ -48,6 +48,8 @@ spec:
             preStop:
               exec:
                 command: ["sleep", "120"]
+          env:
+            {{- toYaml .Values.environments | nindent 12 }}
           volumeMounts:
           - mountPath: /tmp/logback
             name: source

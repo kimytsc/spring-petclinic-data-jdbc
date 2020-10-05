@@ -1,7 +1,7 @@
 replicaCount: 2
 
 image:
-  repository: kimytsc/spring-petclinic-data-jdbc
+  repository: kimytsc/kakaopay-devops-assignment
   pullPolicy: IfNotPresent
   tag: "2.1.0.BUILD-SNAPSHOT"
 
@@ -10,6 +10,10 @@ namespace: "default"
 nameOverride: "application"
 
 fullnameOverride: "petclinic"
+
+environments:
+  - name: SPRING_DATASOURCE_URL
+    value: jdbc:mysql://mysql.default.svc.cluster.local/petclinic
 
 podTerminationGracePeriodSeconds: 30
 
