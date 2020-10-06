@@ -28,6 +28,7 @@ ingress:
   enabled: true
   annotations:
     kubernetes.io/ingress.class: nginx
+    # kubernetes.io/ingress.class: traefik
     kubernetes.io/tls-acme: "false"
   hosts:
     - host: kakaopay.petclinic.com

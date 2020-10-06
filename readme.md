@@ -38,30 +38,30 @@
   ~~~
 
 ## 실행 방법
-  - 변수 / domain 설정
-    ~~~bash
-    $ export DOCKER_ID=dockerId
-    $ export DOCKER_PASSWORD=dockerPassword
-    $ export TEST_DOMAIN=kakaopay.petclinic.com
-    $ export TEST_DOMAIN_IP=localhost # hosts 설정 변경이 필요한 경우에 사용
-    $ echo "${TEST_DOMAIN_IP} ${TEST_DOMAIN}" >> /etc/hosts # hosts 설정 변경이 필요한 경우에 사용
-    ~~~
   - 소스 받기
     ~~~bash
     $ git clone https://github.com/kimytsc/spring-petclinic-data-jdbc -b kakaopay
     $ cd spring-petclinic-data-jdbc
     ~~~
-  - build & docker push
+  - 변수 / 초기 설정
     ~~~bash
-    $ ./gradlew dockerPush -Pid=${DOCKER_ID} -Ppw=${DOCKER_PASSWORD}
+    # devops.sh의 REPOSITORY, IMAGE, TAG, HOST, NAMESPACE, DOCKER_ID, DOCKER_PW 변수 기본 값 변경 또는 parameter로 설정
+    # 필요시 docker hub 로그인
+    $ docker login -u docker_id -p docker_pw
     ~~~
-  - Helm deploy
+  - devops.sh로 build & docker push & deploy
     ~~~bash
-    $ helm upgrade petclinic.database ./helm/database/mysql --wait --debug --install
-    $ helm upgrade petclinic.application ./helm/application/java --wait --debug --install \
-      --set image.repository=${DOCKER_ID}/spring-petclinic-data-jdbc \
-      --set ingress.hosts[0].host=${TEST_DOMAIN} \
-      --set ingress.hosts[0].paths[0]="/"
+    # application build
+    $ ./devops.sh build
+    # docker build
+    # ex) ./devops.sh dockerPush -r docker.io -i docker-registry:5000/kimytsc/kakaopay-devops-assignment -t latest
+    $ ./devops.sh docker
+    # docker push
+    # ex) ./devops.sh dockerPush -r docker.io -i docker-registry:5000/kimytsc/kakaopay-devops-assignment -t latest -u docker_id -p docker_pw
+    $ ./devops.sh dockerPush
+    # helm deploy
+    # ./devops.sh deploy -r docker.io -i docker-registry:5000/kimytsc/kakaopay-devops-assignment -t latest -n default -h petclinic.kakaopay.com
+    $ ./devops.sh deploy
     ~~~
 
 ## 요구사항 구현
@@ -72,8 +72,7 @@
     - 생성된 `build.gradle`에 `docker`([build.gradle#L2](https://github.com/kimytsc/spring-petclinic-data-jdbc/blob/kakaopay/build.gradle#L2),
       [build.gradle#L79](https://github.com/kimytsc/spring-petclinic-data-jdbc/blob/kakaopay/build.gradle#L79),
       [build.gradle#L92](https://github.com/kimytsc/spring-petclinic-data-jdbc/blob/kakaopay/build.gradle#L92)),
-      `dockerPush`([build.gradle#L86](https://github.com/kimytsc/spring-petclinic-data-jdbc/blob/kakaopay/build.gradle#L86),
-      [build.gradle#L93](https://github.com/kimytsc/spring-petclinic-data-jdbc/blob/kakaopay/build.gradle#L93)),
+      `dockerPush`([build.gradle#L91](https://github.com/kimytsc/spring-petclinic-data-jdbc/blob/kakaopay/build.gradle#L91)),
       `ext`([build.gradle#L11](https://github.com/kimytsc/spring-petclinic-data-jdbc/blob/kakaopay/build.gradle#L11)),
       `wro4j`([build.gradle#L6](https://github.com/kimytsc/spring-petclinic-data-jdbc/blob/kakaopay/build.gradle#L6),
       [build.gradle#L9](https://github.com/kimytsc/spring-petclinic-data-jdbc/blob/kakaopay/build.gradle#L9),

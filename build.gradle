@@ -77,17 +77,22 @@ tasks.withType(JavaCompile) {
 }
 
 docker {
-    name "${project.hasProperty('id') ? project.id : 'kakaopay'}/${project.name}:${project.version}"
+    name "${project.hasProperty('dockerImage') ? project.dockerImage : 'kimytsc/kakaopay-devops-assignment2'}"
+    tag "${project.version}", "${name}:${project.version}"
+    tag "latest", "${name}:latest"
+    if (project.hasProperty('tag')) {
+        tag "${project.tag}", "${name}:${project.tag}"
+    }
     files bootJar.archiveFile.get()
     dockerfile project.file("./docker/Dockerfile")
     buildArgs(["TZ": "Asia/Seoul", "JAR_FILE": "${jar.archiveFileName.get()}"])
 }
 
-task dockerLogin(type: Exec) {
-    if (project.hasProperty('id') && project.hasProperty('pw')) {
+if (project.hasProperty('id') && project.id != "" && project.hasProperty('pw') && project.pw != "") {
+    task dockerLogin(type: Exec) {
         commandLine 'docker', 'login', "-u", "${project.id}", "-p", "${project.pw}"
     }
+    dockerPush.dependsOn dockerLogin
 }
 
 docker.dependsOn build
-dockerPush.dependsOn dockerLogin
