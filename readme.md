@@ -63,6 +63,10 @@
     # ./devops.sh deploy -r docker.io -i docker-registry:5000/kimytsc/kakaopay-devops-assignment -t latest -n default -h petclinic.kakaopay.com
     $ ./devops.sh deploy
     ~~~
+  - application build부터 helm deploy까지 한번에 실행
+    ~~~bash
+    $ ./devops.sh deploy
+    ~~~
 
 ## 요구사항 구현
   - gradle을 사용하여 어플리케이션과 도커이미지를 빌드한다.

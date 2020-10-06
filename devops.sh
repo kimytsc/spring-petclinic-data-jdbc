@@ -131,7 +131,7 @@ status() {
 }
 
 deploy() {
-  # dockerPush
+  dockerPush
   if [[ `kubectl get namespace | awk -v OFS='\t' '{print $1}' | grep ${NAMESPACE} | wc -l` -eq 0 ]]; then
     install
   else
